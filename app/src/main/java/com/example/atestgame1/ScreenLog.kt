@@ -31,36 +31,45 @@ enum class LogStatus  {
 object  ScreenLog {
 
     var status = LogStatus.ENABLED
-    private var linesToLog: MutableList<String> = mutableListOf()
-    private var linesToHistory: MutableList<String> = mutableListOf()
+    private var linesToLog: ArrayList<String> = ArrayList()
+    private var linesToHistory: ArrayList<String> = ArrayList()
     private var MAX_LOG_LINES=300
 
     private var logView: RecyclerView? = null
     private var myActivity: AppCompatActivity? = null
     private var myContext: Context? = null
     private var logAdapter : LogAdapter? = null
+    private var historyAdapter : HistoryAdapter? = null
 //    private var myHandler: Handler? = null
+    var screenLogHandler = android.os.Handler()
 
 
     var logMainList = ArrayList<String>()
+    var historyMainList = ArrayList<String>()
 
-    fun start(mainActivity: AppCompatActivity, context: Context, view: RecyclerView) {
+    fun start(mainActivity: AppCompatActivity, context: Context, viewLog: RecyclerView, viewHistory: RecyclerView) {
         myActivity = mainActivity
         myContext = context
-        logView = view
+        logView = viewLog
         logAdapter = LogAdapter(myContext!!, logMainList)
+        historyAdapter = HistoryAdapter(myContext!!, historyMainList)
 
 
-        view.layoutManager = LinearLayoutManager(mainActivity)
-        view.adapter = logAdapter
+        viewLog.layoutManager = LinearLayoutManager(mainActivity)
+        viewLog.adapter = logAdapter
+
+        viewHistory.layoutManager = LinearLayoutManager(mainActivity)
+        viewHistory.adapter = historyAdapter
 
 //        myHandler = handler
 
         enable()
     }
 
-    private var updateMostraNaTela = Runnable {
-        updateMainView()
+    private var updateMainViewRunnable = Runnable {
+//        Thread.currentThread().priority = 1
+        updateLogMainView()
+        updateHistoryMainView()
     }
 
 
@@ -78,39 +87,66 @@ object  ScreenLog {
         Timber.i(message)
 
         if ( status == LogStatus.ENABLED ) {
+            var delay = 100L
             if ( logType == LogType.TO_HISTORY) {
                 linesToHistory.add(newString)
+                // if we have lines to show, do imediate
+                if ( linesToHistory.size > 0 ) {
+                    delay=10L
+                }
+            } else {
+                linesToLog.add(newString)
+                // if we have to much lines to show, do imediate
+                if ( linesToLog.size > 10 ) {
+                    delay=10L
+                }
             }
-            linesToLog.add(newString)
-            (myActivity as MainActivity).screenLogHandler.removeCallbacks(updateMostraNaTela)
-            (myActivity as MainActivity).screenLogHandler.postDelayed(updateMostraNaTela, 10)
-        }
 
+//            (myActivity as MainActivity).screenLogHandler.removeCallbacks(updateMainViewRunnable)
+//            (myActivity as MainActivity).screenLogHandler.postDelayed(updateMainViewRunnable, delay)
+            screenLogHandler.removeCallbacks(updateMainViewRunnable)
+            screenLogHandler.postDelayed(updateMainViewRunnable, delay)
+        }
     }
 
     fun setLogLines(size:Int) {
         MAX_LOG_LINES = size
     }
 
-    fun updateMainView() {
+
+    fun updateLogMainView() {
         val linesToMove = linesToLog.size
 
-        Thread.currentThread().priority = 1
-
-        // Copy lines from myBackgroundList to myList
-        for (line in 0 until linesToMove ) {
-            if (logMainList.size >= MAX_LOG_LINES) {
-                logMainList.removeAt(0)
+        if ( linesToMove > 0 ) {
+            Timber.i("Movendo ${linesToMove}")
+            // Copy lines from localList to mainList
+            for (line in 0 until linesToMove ) {
+                if (logMainList.size >= MAX_LOG_LINES) {
+                    logMainList.removeAt(0)
+                }
+                logMainList.add(linesToLog[0])
+                linesToLog.removeAt(0)
             }
-            logMainList.add(linesToLog[line])
+            logAdapter!!.notifyDataSetChanged()
+            (myActivity as MainActivity).log_recycler_view.smoothScrollToPosition(logAdapter!!.getItemCount() - 1)
         }
+    }
 
-        logAdapter!!.notifyDataSetChanged()
-        (myActivity as MainActivity).log_recycler_view.smoothScrollToPosition(logAdapter!!.getItemCount() - 1)
+    fun updateHistoryMainView() {
+        val linesToMove = linesToHistory.size
 
-        // Remove lines from myBackgroundList to myList
-        for (line in 0 until linesToMove) {
-            linesToLog.removeAt(0)
+        if ( linesToMove > 0) {
+            Timber.i("Movendo ${linesToMove}")
+            // Copy lines from localList to mainList
+            for (line in 0 until linesToMove ) {
+                if (historyMainList.size >= MAX_LOG_LINES) {
+                    historyMainList.removeAt(0)
+                }
+                historyMainList.add(linesToHistory[0])
+                linesToHistory.removeAt(0)
+            }
+            historyAdapter!!.notifyDataSetChanged()
+            (myActivity as MainActivity).history_recycler_view.smoothScrollToPosition(historyAdapter!!.getItemCount() - 1)
         }
     }
 }
@@ -143,6 +179,36 @@ class LogAdapter(private val context: Context, val list: ArrayList<String>): Rec
 //            println("bind myItem = $myItem")
             itemView.tv_title.text = myItem
         }
-
     }
 }
+
+class HistoryAdapter(private val context: Context, val list: ArrayList<String>): RecyclerView.Adapter<HistoryAdapter.ViewHolder>() {
+    var contaId=0
+    override fun onCreateViewHolder(viewGroup: ViewGroup, position: Int): ViewHolder {
+        val view: View = LayoutInflater.from(context).inflate(R.layout.list_item, viewGroup, false)
+//        println("onCreateViewHolder position = $position")
+        return ViewHolder(view)
+    }
+
+    override fun getItemCount(): Int {
+//        println("getItemCount myList.count = ${list.count()}")
+        return list.count()
+    }
+
+    override fun onBindViewHolder(viewHolder: ViewHolder, position: Int) {
+        val str : String?  = list.get(position)
+//        println("onBindViewHolder position = $position - ${list[position]}  id:${viewHolder.id}")
+        if ( str != null) {
+            viewHolder.bind(str)
+        }
+    }
+
+    inner class ViewHolder(itemView: View): RecyclerView.ViewHolder(itemView) {
+        var id=contaId++
+        fun bind(myItem:String) {
+//            println("bind myItem = $myItem")
+            itemView.tv_title.text = myItem
+        }
+    }
+}
+

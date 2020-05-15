@@ -8,7 +8,7 @@ import timber.log.Timber
 
 class MainActivity : AppCompatActivity() {
 
-    var screenLogHandler = Handler()
+//    var screenLogHandler = Handler()
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -20,19 +20,26 @@ class MainActivity : AppCompatActivity() {
 
         setContentView(R.layout.activity_main)
 
-        ScreenLog.start(this, applicationContext, log_recycler_view)
-
+        ScreenLog.start(this, applicationContext, log_recycler_view, history_recycler_view)
 
         btn5reais.setOnClickListener {
             ScreenLog.add(LogType.TO_LOG, "btn5reais")
         }
 
+        btn20reais.setOnClickListener {
+            Thread {
+                for ( contaLinha in  1..20) {
+                    ScreenLog.add(LogType.TO_HISTORY, "Linha History ${contaLinha}")
+                    Thread.sleep(200)
+                }
+            }.start()
+        }
 
         btn50reais.setOnClickListener {
             Thread {
-                for ( contaLinha in  1..500) {
+                for ( contaLinha in  1..100) {
                     ScreenLog.add(LogType.TO_LOG, "Linha ${contaLinha}")
-                    Thread.sleep(40)
+                    Thread.sleep(20)
                 }
             }.start()
         }
