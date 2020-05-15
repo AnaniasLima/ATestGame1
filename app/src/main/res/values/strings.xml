@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">ATestGame1</string>
+    <string name="bill_acceptor_state">BillAcceptorState</string>
 </resources>
