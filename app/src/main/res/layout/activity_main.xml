@@ -34,6 +34,29 @@
         android:orientation="horizontal"
         app:layout_constraintGuide_end="60dp" />
 
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/log_recycler_view"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="@color/colorTextLog"
+        app:layout_constraintBottom_toTopOf="@+id/gl_bottom"
+        app:layout_constraintEnd_toStartOf="@+id/gl_right"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/gl_top2" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/history_recycler_view"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="@color/colorTextHistory"
+        app:layout_constraintBottom_toTopOf="@+id/gl_bottom"
+        app:layout_constraintStart_toStartOf="@+id/gl_right"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/gl_top2" />
+
+
+
     <ImageView
         android:id="@+id/img_bill_acceptor"
         android:layout_width="wrap_content"
@@ -83,15 +106,6 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toEndOf="@+id/btn20reais"
         app:layout_constraintTop_toTopOf="@+id/gl_bottom" />
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/log_recycler_view"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:layout_constraintBottom_toTopOf="@+id/gl_bottom"
-        app:layout_constraintEnd_toStartOf="@+id/gl_right"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/gl_top2" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

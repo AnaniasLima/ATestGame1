@@ -94,43 +94,25 @@ object  ScreenLog {
 
     fun updateMainView() {
         val linesToMove = linesToLog.size
-        val cota=5
 
         Thread.currentThread().priority = 1
 
-        if ( logMainList.size >= MAX_LOG_LINES) {
-            val linesToBeDeleted : Int = MAX_LOG_LINES/4
-            Timber.i("Deletando $linesToBeDeleted de myList (size atual: ${logMainList.size})")
-            for (line in 0 until linesToBeDeleted) {
-                logMainList.removeAt(0)
-            }
-            Timber.i("Novo tamanho de logMainList (${logMainList.size})")
-        }
-
-        if ( linesToMove > cota) {
-            Timber.i("Copiando $linesToMove de myBackgroundList para myList")
-        }
-
         // Copy lines from myBackgroundList to myList
         for (line in 0 until linesToMove ) {
+            if (logMainList.size >= MAX_LOG_LINES) {
+                logMainList.removeAt(0)
+            }
             logMainList.add(linesToLog[line])
         }
+
         logAdapter!!.notifyDataSetChanged()
+        (myActivity as MainActivity).log_recycler_view.smoothScrollToPosition(logAdapter!!.getItemCount() - 1)
 
         // Remove lines from myBackgroundList to myList
         for (line in 0 until linesToMove) {
             linesToLog.removeAt(0)
         }
-
-        if ( linesToMove > cota) {
-            Timber.i("Removidas $linesToMove de myBackgroundList")
-            Timber.i("Novo tamanho de linesToLog = ${linesToLog.size}")
-        }
-
-        (myActivity as MainActivity).log_recycler_view.smoothScrollToPosition(logAdapter!!.getItemCount() - 1)
     }
-
-
 }
 
 

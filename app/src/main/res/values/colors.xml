@@ -3,6 +3,12 @@
     <color name="colorPrimary">#008577</color>
     <color name="colorPrimaryDark">#00574B</color>
     <color name="colorAccent">#D81B60</color>
+
+    <color name="colorTextLog">#1B4BDB</color>
+    <color name="colorTextHistory">#4665C5</color>
+    <color name="colorTextResult">#A79B34</color>
+
+
     <color name="white">#EDFFFFFF</color>
     <color name="black">#EE000000</color>
     <color name="red">#EDFA0000</color>
