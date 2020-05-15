@@ -56,6 +56,17 @@
         app:layout_constraintTop_toTopOf="@+id/gl_top2" />
 
 
+    <VideoView
+        android:id="@+id/video_view"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@+id/gl_bottom"
+        app:layout_constraintEnd_toStartOf="@+id/gl_right"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/gl_top2" />
+
+
 
     <ImageView
         android:id="@+id/img_bill_acceptor"
@@ -106,6 +117,42 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toEndOf="@+id/btn20reais"
         app:layout_constraintTop_toTopOf="@+id/gl_bottom" />
+
+    <Button
+        android:id="@+id/btnStartVideo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:text="StartVideo"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/btn50reais"
+        app:layout_constraintTop_toTopOf="@+id/gl_bottom" />
+
+    <Button
+        android:id="@+id/btnStopVideo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:text="StopVideo"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/btnStartVideo"
+        app:layout_constraintTop_toTopOf="@+id/gl_bottom" />
+
+    <Button
+        android:id="@+id/buttonErro"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@color/colorAccent"
+        android:clickable="false"
+        android:visibility="invisible"
+        android:text="Erro ao carregar arquivo"
+        android:textAlignment="center"
+        android:textColor="@color/colorPrimary"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

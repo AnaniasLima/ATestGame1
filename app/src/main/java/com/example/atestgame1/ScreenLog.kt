@@ -40,7 +40,6 @@ object  ScreenLog {
     private var myContext: Context? = null
     private var logAdapter : LogAdapter? = null
     private var historyAdapter : HistoryAdapter? = null
-//    private var myHandler: Handler? = null
     var screenLogHandler = android.os.Handler()
 
 
@@ -54,14 +53,11 @@ object  ScreenLog {
         logAdapter = LogAdapter(myContext!!, logMainList)
         historyAdapter = HistoryAdapter(myContext!!, historyMainList)
 
-
         viewLog.layoutManager = LinearLayoutManager(mainActivity)
         viewLog.adapter = logAdapter
 
         viewHistory.layoutManager = LinearLayoutManager(mainActivity)
         viewHistory.adapter = historyAdapter
-
-//        myHandler = handler
 
         enable()
     }

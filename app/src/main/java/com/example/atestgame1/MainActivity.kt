@@ -1,14 +1,23 @@
 package com.example.atestgame1
 
+import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.os.Handler
+import android.view.View
+import android.webkit.URLUtil
 import kotlinx.android.synthetic.main.activity_main.*
 import timber.log.Timber
 
 class MainActivity : AppCompatActivity() {
 
-//    var screenLogHandler = Handler()
+    fun getURI(videoname:String): Uri {
+        if (URLUtil.isValidUrl(videoname)) {
+            //  an external URL
+            return Uri.parse(videoname)
+        } else { //  a raw resource
+            return Uri.parse("android.resource://" + packageName + "/raw/" + videoname);
+        }
+    }
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -20,7 +29,13 @@ class MainActivity : AppCompatActivity() {
 
         setContentView(R.layout.activity_main)
 
+        // TODO: Ajustar para edir permissao para usuário ao invez de habilitar permissao na mão
+        if ( ! Config.loadConfig(this, "/storage/emulated/0/JMGames/configJMGames.json") ) {
+            erroFatal(Config.msgErro)
+        }
+
         ScreenLog.start(this, applicationContext, log_recycler_view, history_recycler_view)
+        WaitingMode.start(this, applicationContext, video_view)
 
         btn5reais.setOnClickListener {
             ScreenLog.add(LogType.TO_LOG, "btn5reais")
@@ -44,7 +59,32 @@ class MainActivity : AppCompatActivity() {
             }.start()
         }
 
+        btnStartVideo.setOnClickListener  {
+            log_recycler_view.setVisibility(View.INVISIBLE)
+            log_recycler_view.setVisibility(View.GONE)
+            WaitingMode.playVideos()
+        }
 
+        btnStopVideo.setOnClickListener  {
+            WaitingMode.releasePlayer()
+            log_recycler_view.setVisibility(View.VISIBLE)
+        }
+
+    }
+
+
+    fun erroFatal(str: String?)
+    {
+        if ( str != null && str.isNotEmpty() ) {
+            buttonErro.setVisibility(View.VISIBLE)
+            buttonErro.isClickable=true
+            buttonErro.setText(str)
+            buttonErro.setOnClickListener {
+                Timber.e(str)
+                finish()
+                System.exit(0)
+            }
+        }
     }
 
 
