@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.net.Uri
 import android.os.Handler
 import android.view.View
+import android.widget.Button
 import android.widget.VideoView
 import androidx.appcompat.app.AppCompatActivity
 import kotlinx.android.synthetic.main.activity_main.*
@@ -16,6 +17,7 @@ object WaitingMode {
     var lastPlayedVideo: Int = -1
 
     lateinit private var videoView: VideoView
+    lateinit private var btnVideo: Button
     private var myActivity: AppCompatActivity? = null
 
     var runDemoTimeoutHandler: Handler = Handler()
@@ -34,9 +36,10 @@ object WaitingMode {
     }
 
 
-    fun start(mainActivity: AppCompatActivity, view: VideoView) {
+    fun start(mainActivity: AppCompatActivity, view: VideoView, btnInvisivel: Button) {
         myActivity = mainActivity
         videoView = view
+        btnVideo = btnInvisivel
 
         Timber.e("${BuildConfig.APPLICATION_ID}")
 
@@ -55,14 +58,15 @@ object WaitingMode {
             return
         }
 
+        modoWaitingRunning = true
+
         releasePlayer()
         videoView.visibility = View.VISIBLE
-
-
-        modoWaitingRunning = true
+        btnVideo.setVisibility(View.VISIBLE)
 
         initPlayer()
         initRunDemoTimer()
+
     }
 
     fun leaveWaitingMode() {
@@ -71,6 +75,8 @@ object WaitingMode {
         cancelRunDemoTimeoutRunnable()
         cancelRunDemoRunnable()
 
+        videoView.visibility = View.GONE
+        btnVideo.setVisibility(View.INVISIBLE)
         modoWaitingRunning = false
     }
 

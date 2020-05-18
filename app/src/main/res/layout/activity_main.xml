@@ -70,22 +70,15 @@
 
     <Button
         android:id="@+id/btnInvisivel"
-        android:text="Button Invisible"
+        android:text=""
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:visibility="invisible"
         android:background="?android:selectableItemBackground"/>
 
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/invisible_view"/>
-
-
-
-    <ImageView
-        android:id="@+id/img_bill_acceptor"
+    <Button
+        android:id="@+id/btn_bill_acceptor"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
@@ -101,7 +94,7 @@
         android:layout_marginStart="20dp"
         android:background="@drawable/bill5reais"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/img_bill_acceptor"
+        app:layout_constraintStart_toEndOf="@+id/btn_bill_acceptor"
         app:layout_constraintTop_toTopOf="@+id/gl_bottom" />
 
     <Button
@@ -153,6 +146,23 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toEndOf="@+id/btnStartVideo"
         app:layout_constraintTop_toTopOf="@+id/gl_bottom" />
+
+
+    <TextView
+        android:id="@+id/textResult"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="@color/colorTextResult"
+        app:layout_constraintStart_toStartOf="@+id/gl_right"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/gl_bottom"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:fontFamily="sans-serif-black"
+        android:text="XXX"
+        android:textAlignment="textEnd"
+        android:textSize="30sp"
+        android:textStyle="bold|italic" />
+
 
     <Button
         android:id="@+id/buttonErro"

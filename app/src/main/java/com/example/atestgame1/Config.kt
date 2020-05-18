@@ -12,17 +12,18 @@ import java.nio.channels.FileChannel
 import java.nio.charset.Charset
 
 enum class ConfigType(val type: Int, val token: String) {
-    SERVER          ( 0, "SERVER"),
-    CREDIT_VALUE    ( 1, "CREDIT_VALUE"),
-    ALARM_TIME      ( 2, "ALARM_TIME"),
-    DEMO_TIME       ( 3, "DEMO_TIME"),
-    TRY_TIME        ( 4, "TRY_TIME"),
-    DURING_TRY_AUDIO( 5, "DURING_TRY_AUDIO"),
-    ON_LOSE_AUDIO   ( 6, "ON_LOSE_AUDIO"),
-    ON_WIN_VIDEO    ( 7, "ON_WIN_VIDEO"),
-    ON_DEMO_VIDEO   ( 8, "ON_DEMO_VIDEO"),
-    MONEY_VIDEO     ( 9, "MONEY_VIDEO"),
-    CARD_VIDEO      (10, "CARD_VIDEO");
+    SERVER          (0, "SERVER"),
+    CREDIT_VALUE    (1, "CREDIT_VALUE"),
+    ALARM_TIME      (2, "ALARM_TIME"),
+    DEMO_TIME       (3, "DEMO_TIME"),
+    TRY_TIME        (4, "TRY_TIME"),
+    BILL_AUTOMATIC  (5, "BILL_AUTOMATIC"),
+    DURING_TRY_AUDIO(6, "DURING_TRY_AUDIO"),
+    ON_LOSE_AUDIO   (7, "ON_LOSE_AUDIO"),
+    ON_WIN_VIDEO    (8, "ON_WIN_VIDEO"),
+    ON_DEMO_VIDEO   (9, "ON_DEMO_VIDEO"),
+    MONEY_VIDEO     (10, "MONEY_VIDEO"),
+    CARD_VIDEO      (11, "CARD_VIDEO");
 }
 
 
@@ -35,6 +36,7 @@ object Config {
         var alarmTime: Int = 30
         var demoTime: Int = 120
         var tryTime: Int = 40
+        var automaticBillAcceptor = 1
         var audioTry: Media = Media("/storage/emulated/0/JMGames/A_Playing.mp3", 99)
         var audioLose: Media = Media("/storage/emulated/0/JMGames/A_Gameover.mp3", 99)
         var videoWin: Media = Media("/storage/emulated/0/JMGames/V_Success.mp4", 99)
@@ -78,12 +80,14 @@ object Config {
                     ConfigType.ALARM_TIME        -> alarmTime   = jsonObject.getInt(value.token)
                     ConfigType.DEMO_TIME         -> demoTime    = jsonObject.getInt(value.token)
                     ConfigType.TRY_TIME          -> tryTime     = jsonObject.getInt(value.token)
+                    ConfigType.BILL_AUTOMATIC    -> automaticBillAcceptor   = jsonObject.getInt(value.token)
                     ConfigType.ON_DEMO_VIDEO     -> videosDemo  = getDemoVideos(jsonObject.getJSONArray(value.token))
                     ConfigType.DURING_TRY_AUDIO  -> audioTry    = getMedia(jsonObject.getJSONObject(value.token))
                     ConfigType.ON_LOSE_AUDIO     -> audioLose   = getMedia(jsonObject.getJSONObject(value.token))
                     ConfigType.ON_WIN_VIDEO      -> videoWin    = getMedia(jsonObject.getJSONObject(value.token))
                     ConfigType.MONEY_VIDEO       -> videoMoney  = getMedia(jsonObject.getJSONObject(value.token))
                     ConfigType.CARD_VIDEO        -> videoCard   = getMedia(jsonObject.getJSONObject(value.token))
+
                 }
             }
         } catch (e: Exception) {
@@ -107,6 +111,7 @@ object Config {
                 ConfigType.ALARM_TIME        -> Timber.i("%-20s = %d", value.token, alarmTime)
                 ConfigType.DEMO_TIME         -> Timber.i("%-20s = %d", value.token, demoTime)
                 ConfigType.TRY_TIME          -> Timber.i("%-20s = %d", value.token, tryTime)
+                ConfigType.BILL_AUTOMATIC    -> Timber.i("%-20s = %d", value.token, automaticBillAcceptor)
                 ConfigType.ON_DEMO_VIDEO     -> {
                     videosDemo.forEach {
                         Timber.i("%-20s Volume: %d File:[%s]", value.token, it.volume, it.filename)
@@ -117,6 +122,7 @@ object Config {
                 ConfigType.ON_WIN_VIDEO      -> Timber.i("%-20s Volume: %d File:[%s]", value.token, videoWin.volume, videoWin.filename)
                 ConfigType.MONEY_VIDEO       -> Timber.i("%-20s Volume: %d File:[%s]", value.token, videoMoney.volume, videoMoney.filename)
                 ConfigType.CARD_VIDEO        -> Timber.i("%-20s Volume: %d File:[%s]", value.token, videoCard.volume, videoCard.filename)
+
             }
         }
     }
