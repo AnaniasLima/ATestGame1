@@ -68,6 +68,22 @@
 
 
 
+    <Button
+        android:id="@+id/btnInvisivel"
+        android:text="Button Invisible"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="invisible"
+        android:background="?android:selectableItemBackground"/>
+
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/invisible_view"/>
+
+
+
     <ImageView
         android:id="@+id/img_bill_acceptor"
         android:layout_width="wrap_content"

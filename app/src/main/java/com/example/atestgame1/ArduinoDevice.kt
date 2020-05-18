@@ -189,6 +189,9 @@ object ArduinoDevice {
                     EventType.FW_BILL_ACCEPTOR -> {
                         ret = connectThread!!.requestToSend(eventType = EventType.FW_BILL_ACCEPTOR, action=action)
                     }
+                    EventType.FW_DEMO -> {
+                        ret = connectThread!!.requestToSend(eventType = EventType.FW_DEMO, action=action)
+                    }
                     EventType.FW_LED -> {
                         ret = connectThread!!.requestToSend(eventType = EventType.FW_LED, action=action)
                     }

@@ -26,6 +26,7 @@ enum class ConfigType(val type: Int, val token: String) {
 }
 
 
+
 object Config {
 
         var msgErro: String? = null
