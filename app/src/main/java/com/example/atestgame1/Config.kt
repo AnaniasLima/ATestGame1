@@ -55,7 +55,7 @@ object Config {
 
     fun loadConfig( context : Context, file: String) : Boolean {
         val jsonObject : JSONObject?
-        var curItem: String = ""
+        var curItem: String
 
         if ( ContextCompat.checkSelfPermission(context, android.Manifest.permission.READ_EXTERNAL_STORAGE) !=
             PackageManager.PERMISSION_GRANTED ) {
@@ -71,6 +71,7 @@ object Config {
             return false
         }
 
+        curItem = ""
         try {
             for (value in ConfigType.values()) {
                 curItem = value.token
@@ -87,7 +88,6 @@ object Config {
                     ConfigType.ON_WIN_VIDEO      -> videoWin    = getMedia(jsonObject.getJSONObject(value.token))
                     ConfigType.MONEY_VIDEO       -> videoMoney  = getMedia(jsonObject.getJSONObject(value.token))
                     ConfigType.CARD_VIDEO        -> videoCard   = getMedia(jsonObject.getJSONObject(value.token))
-
                 }
             }
         } catch (e: Exception) {
@@ -95,8 +95,6 @@ object Config {
             Timber.e("Config item: %s: %s", msgErro, e.message.toString())
             return false
         }
-
-        Timber.e("===== =====  ==== Init 3333")
 
         printConfig()
         return true

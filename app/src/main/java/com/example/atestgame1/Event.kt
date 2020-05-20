@@ -1,7 +1,6 @@
 package com.example.atestgame1
 
 import org.json.JSONObject
-import java.text.SimpleDateFormat
 import java.util.*
 
 data class Event(
@@ -37,8 +36,11 @@ data class Event(
             }
 
             commandData.put("packetNumber", pktNumber)
-            commandData.put("hour", SimpleDateFormat( "HH:mm:SS", Locale.getDefault()).format(Date()))
-//            commandData.put("timestamp", event.timestamp.toString())
+
+            val c = Calendar.getInstance()
+            val strHora =  String.format("%02d:%02d:%02d", c.get(Calendar.HOUR_OF_DAY), c.get(Calendar.MINUTE), c.get(Calendar.SECOND))
+
+            commandData.put("hour", strHora)
 
             return commandData.toString()
         }

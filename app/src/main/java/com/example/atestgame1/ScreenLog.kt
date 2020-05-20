@@ -11,9 +11,7 @@ import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.list_item.view.*
 import timber.log.Timber
-import java.text.SimpleDateFormat
 import java.util.*
-import java.util.logging.Handler
 
 
 enum class LogType  {
@@ -77,8 +75,11 @@ object  ScreenLog {
     }
 
     fun add(logType : LogType, message : String) {
-        val strHora1 = SimpleDateFormat("HH:mm:ss").format(Calendar.getInstance().time)
+        val c = Calendar.getInstance()
+        val strHora1 =  String.format("%02d:%02d:%02d", c.get(Calendar.HOUR_OF_DAY), c.get(Calendar.MINUTE), c.get(Calendar.SECOND))
+
         var newString = "$strHora1 - $message"
+
 
         if ( message.isEmpty() ) {
             newString = "--------------"

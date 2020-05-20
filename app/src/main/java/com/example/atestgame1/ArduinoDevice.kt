@@ -9,7 +9,6 @@ import android.hardware.usb.UsbManager
 import android.os.Handler
 import androidx.appcompat.app.AppCompatActivity
 import timber.log.Timber
-import java.text.SimpleDateFormat
 import java.util.*
 
 
@@ -63,10 +62,13 @@ object ArduinoDevice {
     fun usbSerialContinueChecking() {
         var delayToNext: Long = USB_SERIAL_REQUEST_INTERVAL
 
+
         if ( ! ConnectThread.isConnected ) {
+            val c = Calendar.getInstance()
+            val strHora =  String.format("%02d:%02d:%02d", c.get(Calendar.HOUR_OF_DAY), c.get(Calendar.MINUTE), c.get(Calendar.SECOND))
+
             delayToNext = USB_SERIAL_TIME_TO_CONNECT_INTERVAL
-            mostraNaTela("agendando proximo STATUS_REQUEST para:---" + SimpleDateFormat("HH:mm:ss").format(
-                Calendar.getInstance().time.time.plus(delayToNext)) + "(" + delayToNext.toString() + ")")
+            mostraNaTela("agendando proximo STATUS_REQUEST para:---" + strHora + " ${delayToNext}ms")
         }
 
         usbSerialRequestHandler.removeCallbacks(usbSerialRunnable)
@@ -74,9 +76,10 @@ object ArduinoDevice {
     }
 
     fun usbSerialImediateChecking(delayToNext: Long) {
+        val c = Calendar.getInstance()
+        val strHora =  String.format("%02d:%02d:%02d", c.get(Calendar.HOUR_OF_DAY), c.get(Calendar.MINUTE), c.get(Calendar.SECOND))
 
-        mostraNaTela("agendando STATUS_REQUEST para:---" + SimpleDateFormat("HH:mm:ss").format(
-            Calendar.getInstance().time.time.plus(delayToNext)) + "(" + delayToNext.toString() + ")")
+        mostraNaTela("agendando STATUS_REQUEST para:---${strHora} + ${delayToNext}ms")
 
         usbSerialRequestHandler.removeCallbacks(usbSerialRunnable)
         usbSerialRequestHandler.postDelayed(usbSerialRunnable, delayToNext)
@@ -89,9 +92,16 @@ object ArduinoDevice {
         val dif = eventResponse.packetNumber.toInt() - eventResponse.numPktResp.toInt()
 
         if ( dif != lastDif) {
-            Timber.e("========= Perdeu pacote ======")
-            lastDif = dif
-            mostraEmHistory("Perdeu ${lastDif} pacotes (${eventResponse.packetNumber})")
+
+            if ( (eventResponse.packetNumber.toInt() == 1) && (eventResponse.numPktResp.toInt() > 1) )  {
+               // Reiniciando com Arduino já em execução, vamos ajustar o nosso numero
+                Event.pktNumber = eventResponse.numPktResp.toInt()
+            } else {
+                Timber.e("========= Perdeu pacote ======")
+                lastDif = dif
+                mostraEmHistory("Perdeu ${lastDif} pacotes (${eventResponse.packetNumber})")
+            }
+
         }
 
         when ( eventResponse.eventType ) {

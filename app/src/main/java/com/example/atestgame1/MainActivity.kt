@@ -2,17 +2,17 @@ package com.example.atestgame1
 
 import android.content.Context
 import android.hardware.usb.UsbManager
-import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
 import android.view.View
-import android.webkit.URLUtil
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
-import android.widget.Button
 import kotlinx.android.synthetic.main.activity_main.*
 import timber.log.Timber
+import java.time.LocalDateTime
+import java.util.*
+import kotlin.time.*
 
 
 enum class ErrorType(val type: Int, val message: String) {
@@ -55,6 +55,9 @@ class MainActivity : AppCompatActivity() {
         }
 
         setContentView(R.layout.activity_main)
+
+
+
 
         // TODO: Ajustar para edir permissao para usuário ao invez de habilitar permissao na mão
         if ( ! Config.loadConfig(this, "/storage/emulated/0/JMGames/configJMGames.json") ) {
@@ -152,7 +155,7 @@ class MainActivity : AppCompatActivity() {
                 ArduinoDevice.requestToSend(EventType.FW_DEMO, Event.ON)
                 Thread {
                     // Vamos desligar temporariamente o log TX (depois retornamos ao status original)
-                    var old = ArduinoDevice.getLogLevel(FunctionType.FX_TX)
+                    val old = ArduinoDevice.getLogLevel(FunctionType.FX_TX)
                     Thread.sleep(1000)
                     ArduinoDevice.logTX(false)
                     for ( contaLinha in  1..10) {
@@ -232,8 +235,5 @@ class MainActivity : AppCompatActivity() {
 
 
     }
-
-
-
 
 }

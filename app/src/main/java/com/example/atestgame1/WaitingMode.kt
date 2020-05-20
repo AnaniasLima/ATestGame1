@@ -30,9 +30,9 @@ object WaitingMode {
         ScreenLog.add(LogType.TO_HISTORY, "Enviando EventType.FW_DEMO")
 
         ArduinoDevice.requestToSend(EventType.FW_DEMO, Event.ON)
-        // Esperamos receber resposta de um comando FW_DEMO em no máximo 10 segundos
+        // Esperamos receber resposta de um comando FW_DEMO em no máximo 20 segundos
         // TODO: Validar com Marcus se este tempo esta OK
-        runDemoTimeoutHandler.postDelayed(runDemoTimeoutRunnable, 10000)
+        runDemoTimeoutHandler.postDelayed(runDemoTimeoutRunnable, 20000)
     }
 
 
@@ -40,9 +40,6 @@ object WaitingMode {
         myActivity = mainActivity
         videoView = view
         btnVideo = btnInvisivel
-
-        Timber.e("${BuildConfig.APPLICATION_ID}")
-
     }
 
     fun enterWaitingMode() {
@@ -118,7 +115,14 @@ object WaitingMode {
         if ( filename.contains('/')) {
             videoView.setVideoPath(filename)
         } else {
-            videoView.setVideoURI(Uri.parse("android.resource://" + BuildConfig.APPLICATION_ID + "/raw/" + filename))
+            var file = filename
+            val ind = filename.indexOfFirst { c -> (c == '.') }
+            if ( ind > 0 ) {
+                Timber.i(" ind: ${ind} ${filename.removeRange(ind, filename.length)}")
+                file = filename.removeRange(ind, filename.length)
+                Timber.i(" name: ${file}")
+            }
+            videoView.setVideoURI(Uri.parse("android.resource://" + BuildConfig.APPLICATION_ID + "/raw/" + file))
         }
     }
 

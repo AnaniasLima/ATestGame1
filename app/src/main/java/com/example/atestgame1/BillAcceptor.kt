@@ -4,14 +4,10 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Handler
 import android.widget.Button
-import android.widget.ImageView
-import android.widget.TextView
-import android.widget.VideoView
 import androidx.appcompat.app.AppCompatActivity
 import kotlinx.android.synthetic.main.activity_main.*
 import timber.log.Timber
 import java.lang.Exception
-import java.text.SimpleDateFormat
 import java.util.*
 
 enum class DeviceState  {
@@ -92,8 +88,6 @@ object BillAcceptor {
         val str2 = token.substring(indStart+1)
         val indEnd = str2.indexOfFirst {  it == ' '}
         val str3 = str2.substring(0, indEnd)
-
-        ScreenLog.add(LogType.TO_LOG, "${token}")
 
         try {
             val delay: Long = str3.toLong()
@@ -176,9 +170,9 @@ object BillAcceptor {
             }
 
             if ( ! dropLog) {
-                Timber.i("agendando deviceChecking %s (%s)",
-                    SimpleDateFormat("HH:mm:ss").format(Calendar.getInstance().time.time.plus(delayToNext)) ,
-                    delayToNext.toString())
+                val c = Calendar.getInstance()
+                val strHora =  String.format("%02d:%02d:%02d", c.get(Calendar.HOUR_OF_DAY), c.get(Calendar.MINUTE), c.get(Calendar.SECOND))
+                Timber.i("agendando deviceChecking ${strHora} + ${delayToNext}ms")
             }
 
             billAcceptorHandler.removeCallbacks(deviceCheckRunnable)
@@ -189,7 +183,7 @@ object BillAcceptor {
     private var deviceCheckRunnable = Runnable {
 
         if ( receivedState == desiredState ) {
-            Timber.i("receivedState=%s  desiredState=%s", receivedState, desiredState)
+//            Timber.i("receivedState=%s  desiredState=%s", receivedState, desiredState)
             deviceChecking(0 ) // Ao receber a resposta de QUESTION vai agendar um novo QUESTION
             sendCommandToDevice(DeviceCommand.QUESTION)
         } else {
