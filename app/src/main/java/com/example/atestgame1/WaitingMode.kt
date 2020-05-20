@@ -149,4 +149,9 @@ object WaitingMode {
         } catch (e: Exception) {}
     }
 
+    // fw_demo (on)  Se ( Estado != FSM_IDLE ) retorna busy
+    // fw_demo (on)  Se ( Estado == FSM_IDLE ) retorna: OK, fsm_state = RUNNING_DEMO
+    // fw_demo (off) Se ( Estado == RUNNING_DEMO ) || ((Estado == RUNNING_DEMO_WAIT_Y) || ((Estado == RUNNING_DEMO_WAIT_XZ) retorna: OK, fsm_state = START_HOMMING
+    // Enquanto estiver movimentando vai voltar "RUNNING_DEMO_WAIT_XZ" depois RUNNING_DEMO_WAIT_Y depois START_HOMMING e finalmente ????
+
 }

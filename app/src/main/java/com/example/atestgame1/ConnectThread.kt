@@ -98,7 +98,7 @@ class ConnectThread(val operation:Int, val usbManager : UsbManager, val mainActi
     fun onCommandReceived(commandReceived: String) {
 
         if ( ArduinoDevice.getLogLevel(FunctionType.FX_RX)   ) {
-            mostraNaTela("RX: ${commandReceived}")
+            ScreenLog.add(LogType.TO_LOG, "RX: ${commandReceived}")
         } else {
             Timber.d("RX: ${commandReceived}")
         }
@@ -178,7 +178,7 @@ class ConnectThread(val operation:Int, val usbManager : UsbManager, val mainActi
             usbSerialDevice?.write(pktStr.toByteArray())
 
             if ( ArduinoDevice.getLogLevel(FunctionType.FX_TX)  ) {
-                mostraNaTela("TX: $pktStr")
+                ScreenLog.add(LogType.TO_LOG, "TX: ${pktStr}")
             } else {
                 Timber.d("TX: $pktStr")
             }
@@ -220,11 +220,12 @@ class ConnectThread(val operation:Int, val usbManager : UsbManager, val mainActi
 
             if ( m_device != null ) {
                 val m_connection: UsbDeviceConnection? = usbManager.openDevice(m_device)
-                mostraNaTela("hasPermission = " + usbManager.hasPermission(m_device).toString())
-                mostraNaTela("deviceClass = " + m_device.deviceClass.toString())
-                mostraNaTela("deviceName = " + m_device.deviceName)
-                mostraNaTela("vendorId = " + m_device.vendorId.toString())
-                mostraNaTela("productId = " + m_device.productId.toString())
+
+                ScreenLog.add(LogType.TO_LOG,"hasPermission = " + usbManager.hasPermission(m_device).toString())
+                ScreenLog.add(LogType.TO_LOG,"deviceClass = " + m_device.deviceClass.toString())
+                ScreenLog.add(LogType.TO_LOG,"deviceName = " + m_device.deviceName)
+                ScreenLog.add(LogType.TO_LOG,"vendorId = " + m_device.vendorId.toString())
+                ScreenLog.add(LogType.TO_LOG,"productId = " + m_device.productId.toString())
                 if (m_connection != null) {
                     Timber.i("Creating usbSerialDevice")
                     usbSerialDevice = UsbSerialDevice.createUsbSerialDevice(m_device, m_connection)
@@ -235,11 +236,11 @@ class ConnectThread(val operation:Int, val usbManager : UsbManager, val mainActi
                             usbSerialDevice!!.read( this )
                         }
                     } else {
-                        mostraNaTela("can´t create usbSerialDevice. createUsbSerialDevice(m_device, m_connection) Failure.")
+                        ScreenLog.add(LogType.TO_LOG,"can´t create usbSerialDevice. createUsbSerialDevice(m_device, m_connection) Failure.")
                         Timber.e("can´t create usbSerialDevice. createUsbSerialDevice(m_device, m_connection) Failure.")
                     }
                 } else {
-                    mostraNaTela("can´t create m_connection. openDevice(m_device) Failure.")
+                    ScreenLog.add(LogType.TO_LOG,"can´t create m_connection. openDevice(m_device) Failure.")
                     Timber.e("can´t create m_connection. openDevice(m_device) Failure.")
                 }
             }
@@ -250,7 +251,7 @@ class ConnectThread(val operation:Int, val usbManager : UsbManager, val mainActi
         isConnected = usbSerialDevice?.isOpen ?: false
 
         if ( isConnected ) {
-            mostraNaTela("CONECTADO COM SUCESSO")
+            ScreenLog.add(LogType.TO_LOG,"CONECTADO COM SUCESSO")
             ArduinoDevice.usbSerialImediateChecking(300)
         }
 
@@ -280,17 +281,17 @@ class ConnectThread(val operation:Int, val usbManager : UsbManager, val mainActi
             deviceList.forEach { entry ->
                 device = entry.value
                 val deviceVendorId: Int = device!!.vendorId
-                mostraNaTela("Device localizado. Vendor:" + deviceVendorId.toString() + "  productId: " + device!!.productId + "  Name: " + device!!.productName)
+                ScreenLog.add(LogType.TO_LOG,"Device localizado. Vendor:" + deviceVendorId.toString() + "  productId: " + device!!.productId + "  Name: " + device!!.productName)
                 Timber.i("Device Vendor.Id: %d",  deviceVendorId)
                 if ( (vendorRequired == 0) || (deviceVendorId == vendorRequired) ) {
 
                     if ( ! usbManager.hasPermission(device)) {
-                        mostraNaTela("=============== Device Localizado NAO tem permissao")
+                        ScreenLog.add(LogType.TO_LOG,"=============== Device Localizado NAO tem permissao")
                         val intent: PendingIntent = PendingIntent.getBroadcast(myContext, 0, Intent(ArduinoDevice.ACTION_USB_PERMISSION), PendingIntent.FLAG_UPDATE_CURRENT)
                         usbManager.requestPermission(device, intent)
                     } else {
-                        mostraNaTela("=============== Device Localizado TEM permissao")
-                        mostraNaTela("Device Selecionado")
+                        ScreenLog.add(LogType.TO_LOG,"=============== Device Localizado TEM permissao")
+                        ScreenLog.add(LogType.TO_LOG,"Device Selecionado")
                         Timber.i("Device Selected")
                         selectedDevice = device
                         return selectedDevice
@@ -298,7 +299,7 @@ class ConnectThread(val operation:Int, val usbManager : UsbManager, val mainActi
                 }
             }
         } else {
-            mostraNaTela("No serial device connected")
+            ScreenLog.add(LogType.TO_LOG,"No serial device connected")
             Timber.i("No serial device connected")
         }
         return selectedDevice

@@ -224,7 +224,7 @@ object ArduinoDevice {
         rxLogEnabled = enabled
     }
     fun logTX(enabled:Boolean) {
-        rxLogEnabled = enabled
+        txLogEnabled = enabled
     }
 
     fun getLogLevel(function : FunctionType) : Boolean {

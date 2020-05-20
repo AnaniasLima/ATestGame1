@@ -78,7 +78,11 @@ object  ScreenLog {
 
     fun add(logType : LogType, message : String) {
         val strHora1 = SimpleDateFormat("HH:mm:ss").format(Calendar.getInstance().time)
-        val newString = "$strHora1 - $message"
+        var newString = "$strHora1 - $message"
+
+        if ( message.isEmpty() ) {
+            newString = "--------------"
+        }
 
         Timber.i(message)
 
@@ -98,12 +102,30 @@ object  ScreenLog {
                 }
             }
 
-//            (myActivity as MainActivity).screenLogHandler.removeCallbacks(updateMainViewRunnable)
-//            (myActivity as MainActivity).screenLogHandler.postDelayed(updateMainViewRunnable, delay)
             screenLogHandler.removeCallbacks(updateMainViewRunnable)
             screenLogHandler.postDelayed(updateMainViewRunnable, delay)
         }
     }
+
+
+    fun tag(logType : LogType) {
+        add(logType, "")
+    }
+
+    fun clear(logType : LogType) {
+        if ( logType == LogType.TO_HISTORY) {
+            val lines = historyAdapter!!.getItemCount()
+            linesToHistory.clear()
+            historyMainList.clear()
+            historyAdapter!!.notifyItemRangeRemoved(0, lines)
+        } else {
+            val lines = logAdapter!!.getItemCount()
+            linesToLog.clear()
+            logMainList.clear()
+            logAdapter!!.notifyItemRangeRemoved(0, lines)
+        }
+    }
+
 
     fun setLogLines(size:Int) {
         MAX_LOG_LINES = size
@@ -119,6 +141,7 @@ object  ScreenLog {
             for (line in 0 until linesToMove ) {
                 if (logMainList.size >= MAX_LOG_LINES) {
                     logMainList.removeAt(0)
+                    logAdapter!!.notifyItemRangeRemoved(0, 1)
                 }
                 logMainList.add(linesToLog[0])
                 linesToLog.removeAt(0)
@@ -137,6 +160,7 @@ object  ScreenLog {
             for (line in 0 until linesToMove ) {
                 if (historyMainList.size >= MAX_LOG_LINES) {
                     historyMainList.removeAt(0)
+                    historyAdapter!!.notifyItemRangeRemoved(0, 1)
                 }
                 historyMainList.add(linesToHistory[0])
                 linesToHistory.removeAt(0)

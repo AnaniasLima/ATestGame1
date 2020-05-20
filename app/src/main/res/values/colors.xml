@@ -4,6 +4,9 @@
     <color name="colorPrimaryDark">#00574B</color>
     <color name="colorAccent">#D81B60</color>
 
+    <color name="colorTopArea1">#809C1B</color>
+    <color name="colorTopArea2">#809C1B</color>
+
     <color name="colorTextLog">#1B4BDB</color>
     <color name="colorTextHistory">#4665C5</color>
     <color name="colorTextResult">#A79B34</color>

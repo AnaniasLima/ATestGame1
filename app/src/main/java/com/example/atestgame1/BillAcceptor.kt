@@ -64,6 +64,11 @@ object BillAcceptor {
         mainActivity = activity
         context = appcontext
         btnView = btn
+
+        mainActivity?.runOnUiThread {
+            btnView.setBackgroundResource(R.drawable.bill_acceptor_yellow)
+        }
+        receivedState = DeviceState.UNKNOW
     }
 
     init {
@@ -88,9 +93,12 @@ object BillAcceptor {
         val indEnd = str2.indexOfFirst {  it == ' '}
         val str3 = str2.substring(0, indEnd)
 
+        ScreenLog.add(LogType.TO_LOG, "${token}")
+
         try {
             val delay: Long = str3.toLong()
             SELECTED_TIME_TO_QUESTION = delay
+            ScreenLog.add(LogType.TO_LOG, "delay=${delay}")
             deviceChecking(0L) // Para iniciar novo ciclo
         } catch (e: Exception) {
             SELECTED_TIME_TO_QUESTION = DEFAULT_TIME_TO_QUESTION
@@ -106,12 +114,15 @@ object BillAcceptor {
             20 -> sendCommandToDevice(DeviceCommand.SIMULA20REAIS)
             50 -> sendCommandToDevice(DeviceCommand.SIMULA50REAIS)
         }
-//        deviceChecking(WAIT_TIME_TO_RESPONSE)
     }
 
 
     fun isEnabled() : Boolean {
         return receivedState == DeviceState.ON
+    }
+
+    fun isStatMachineRunning() : Boolean {
+        return stateMachineRunning
     }
 
     fun StartStateMachine()  {
@@ -129,7 +140,6 @@ object BillAcceptor {
             desiredState = DeviceState.ON
         } else {
             sendCommandToDevice(DeviceCommand.ON)
-            sendCommandToDevice(DeviceCommand.QUESTION)
         }
     }
 
@@ -138,7 +148,6 @@ object BillAcceptor {
             desiredState = DeviceState.OFF
         } else {
             sendCommandToDevice(DeviceCommand.OFF)
-            sendCommandToDevice(DeviceCommand.QUESTION)
         }
     }
 
@@ -235,9 +244,6 @@ object BillAcceptor {
                 return
             }
             EventResponse.OK -> {
-                if ( ! stateMachineRunning ) {
-                    return
-                }
 
                 inBusyStateCounter = 0
 
@@ -282,8 +288,9 @@ object BillAcceptor {
                         }
 
                         // Podemos reagendar o proximo question automatico
-                        deviceChecking(0L)
-
+                        if ( stateMachineRunning ) {
+                            deviceChecking(0L)
+                        }
                     }
                     Event.RESET -> {
                         if ( response.value > 0 ) {
