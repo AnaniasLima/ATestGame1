@@ -26,7 +26,7 @@ object ArduinoDevice {
     private const val USB_SERIAL_TIME_TO_CONNECT_INTERVAL = 10000L
 
     var mainActivity: AppCompatActivity? = null
-    var myContext: Context? = null
+    var appContext: Context? = null
     var usbManager  : UsbManager? = null
 
     private var usbSerialRequestHandler = Handler()
@@ -34,6 +34,18 @@ object ArduinoDevice {
     private var connectThread: ConnectThread? = null
     private var rxLogLevel = 0
     private var txLogLevel = 0
+
+
+    fun start(activity: AppCompatActivity, context: Context) {
+        mainActivity = activity
+        appContext = context
+
+        // ArduinoDevice.usbManager = applicationContext.getSystemService(Context.USB_SERVICE) as UsbManager
+        usbManager = context.getSystemService(Context.USB_SERVICE) as UsbManager
+
+        usbSetFilters()
+        usbSerialImediateChecking(200)
+    }
 
 
     private fun mostraNaTela(str:String) {
@@ -97,9 +109,16 @@ object ArduinoDevice {
                // Reiniciando com Arduino já em execução, vamos ajustar o nosso numero
                 Event.pktNumber = eventResponse.numPktResp.toInt()
             } else {
-                Timber.e("========= Perdeu pacote ======")
-                lastDif = dif
-                mostraEmHistory("Perdeu ${lastDif} pacotes (${eventResponse.packetNumber})")
+                if ( eventResponse.numPktResp.toInt() == 1) {
+                    Timber.e("========= Arduino resetou ======")
+                    Event.pktNumber = 1
+                    mostraEmHistory("*** Arduino resetou")
+                } else {
+                    Timber.e("========= Perdeu pacote ======")
+                    lastDif = dif
+                    mostraEmHistory("Perdeu ${lastDif} pacotes (${eventResponse.packetNumber})")
+
+                }
             }
 
         }
@@ -129,6 +148,7 @@ object ArduinoDevice {
                     ACTION_USB_PERMISSION -> {
                         val granted: Boolean = intent.extras!!.getBoolean(UsbManager.EXTRA_PERMISSION_GRANTED)
                         mostraNaTela("ACTION_USB_PERMISSION------------------------- Permmissao concedida = ${granted.toString()}")
+                        usbSerialImediateChecking(200)
                     }
                     UsbManager.ACTION_USB_DEVICE_ATTACHED -> {
                         mostraNaTela("ACTION_USB_DEVICE_ATTACHED")
@@ -157,7 +177,7 @@ object ArduinoDevice {
         if ( usbManager != null ) {
             if ( usbManager!!.deviceList.size > 0  ) {
                 mostraNaTela("Tentando connect...")
-                connectThread = ConnectThread(ConnectThread.CONNECT, usbManager!!, mainActivity!!, myContext!!)
+                connectThread = ConnectThread(ConnectThread.CONNECT, usbManager!!, mainActivity!!, appContext!!)
                 if (connectThread != null ) {
                     Timber.i("Startando thread para tratar da conexao")
                     connectThread!!.priority = Thread.MAX_PRIORITY
@@ -182,7 +202,7 @@ object ArduinoDevice {
             connectThread = null
         } else {
             Timber.i("Disparando thread para desconectar")
-            ConnectThread(ConnectThread.DISCONNECT, usbManager!!, mainActivity!!, myContext!!).start()
+            ConnectThread(ConnectThread.DISCONNECT, usbManager!!, mainActivity!!, appContext!!).start()
         }
     }
 
@@ -224,7 +244,7 @@ object ArduinoDevice {
         filter.addAction(UsbManager.ACTION_USB_ACCESSORY_DETACHED)
         filter.addAction(UsbManager.ACTION_USB_DEVICE_ATTACHED)
         filter.addAction(UsbManager.ACTION_USB_DEVICE_DETACHED)
-        myContext!!.registerReceiver(broadcastReceiver, filter)
+        appContext!!.registerReceiver(broadcastReceiver, filter)
     }
 
     private var rxLogEnabled : Boolean = true

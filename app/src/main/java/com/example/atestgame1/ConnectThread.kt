@@ -21,6 +21,7 @@ class ConnectThread(val operation:Int, val usbManager : UsbManager, val mainActi
     private var usbSerialDevice: UsbSerialDevice? = null
     var receivedBytes = ByteArray(512)
     var pktInd:Int=0
+    var pendingResponse = 0
 
     companion object {
         var CONNECT = 1
@@ -97,6 +98,8 @@ class ConnectThread(val operation:Int, val usbManager : UsbManager, val mainActi
 
     fun onCommandReceived(commandReceived: String) {
 
+        pendingResponse = 0
+
         if ( ArduinoDevice.getLogLevel(FunctionType.FX_RX)   ) {
             ScreenLog.add(LogType.TO_LOG, "RX: ${commandReceived}")
         } else {
@@ -138,6 +141,7 @@ class ConnectThread(val operation:Int, val usbManager : UsbManager, val mainActi
         if ( operation ==  CONNECT) {
             if ( connectInBackground() ) {
                 finishThread = false
+                pendingResponse = 0
                 while ( ! finishThread ) {
                     if ( EVENT_LIST.isEmpty() ) {
                         sleep(WAITTIME)
@@ -147,6 +151,16 @@ class ConnectThread(val operation:Int, val usbManager : UsbManager, val mainActi
                         if ( ! EVENT_LIST.isEmpty()) {
                             sleep(WAIT_INTER_PACKETS)
                         }
+
+                        // Eventualmente acontece de mandar pacotes e não receber resposta (não sei por que, ,as acontece)
+                        // sendo assim, se mandarmos mais de 2 pacotes e não recebermos resposta, vamos desconectar
+                        // e esperar a reconexão automatica
+                        if ( pendingResponse++ > 2 ) {
+                            // Não estamos recebendo resposta
+                            // Vamos desconectar
+                            break
+                        }
+
                     }
                 }
                 disconnectInBackground()

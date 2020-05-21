@@ -266,7 +266,7 @@
         app:layout_constraintTop_toTopOf="@+id/gl_bottom"
         app:layout_constraintBottom_toBottomOf="parent"
         android:fontFamily="sans-serif-black"
-        android:text="XXX"
+        android:text="R$ 0,00"
         android:textAlignment="textEnd"
         android:textSize="30sp"
         android:textStyle="bold|italic" />

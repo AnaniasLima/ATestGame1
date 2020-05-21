@@ -79,10 +79,6 @@ object BillAcceptor {
     }
 
 
-    private fun mostraEmResult(valor : Int) {
-        (mainActivity as MainActivity).mostraEmResult(valor)
-    }
-
     fun setDelayForQuestion(token: String) {
         val indStart = token.indexOfFirst {  it == ' '}
         val str2 = token.substring(indStart+1)
@@ -182,9 +178,9 @@ object BillAcceptor {
 
     private var deviceCheckRunnable = Runnable {
 
+        deviceChecking(0 ) // A principio agenda nova execução
+
         if ( receivedState == desiredState ) {
-//            Timber.i("receivedState=%s  desiredState=%s", receivedState, desiredState)
-            deviceChecking(0 ) // Ao receber a resposta de QUESTION vai agendar um novo QUESTION
             sendCommandToDevice(DeviceCommand.QUESTION)
         } else {
             when (desiredState) {
@@ -360,7 +356,10 @@ object BillAcceptor {
     private fun sendCreditToController(value : Int) {
         Timber.i("CREDITAR ${value}") // TODO: integrar com interface
         ScreenLog.add(LogType.TO_HISTORY, "CREDITAR ${value}")
-        mostraEmResult(value)
+
+        mainActivity?.runOnUiThread {
+            (mainActivity as MainActivity).mostraEmResult(value)
+        }
     }
 
 }

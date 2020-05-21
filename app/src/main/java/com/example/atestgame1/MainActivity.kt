@@ -4,15 +4,11 @@ import android.content.Context
 import android.hardware.usb.UsbManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.os.Handler
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import kotlinx.android.synthetic.main.activity_main.*
 import timber.log.Timber
-import java.time.LocalDateTime
-import java.util.*
-import kotlin.time.*
 
 
 enum class ErrorType(val type: Int, val message: String) {
@@ -56,9 +52,6 @@ class MainActivity : AppCompatActivity() {
 
         setContentView(R.layout.activity_main)
 
-
-
-
         // TODO: Ajustar para edir permissao para usuário ao invez de habilitar permissao na mão
         if ( ! Config.loadConfig(this, "/storage/emulated/0/JMGames/configJMGames.json") ) {
             erroFatal(Config.msgErro)
@@ -67,42 +60,22 @@ class MainActivity : AppCompatActivity() {
         ScreenLog.start(this, applicationContext, log_recycler_view, history_recycler_view)
         WaitingMode.start(this, video_view, btnInvisivel)
         BillAcceptor.start(this, applicationContext, btn_bill_acceptor)
+        ArduinoDevice.start(this, applicationContext)
+
 
         insertSpinnerBillAcceptor()
 
-
-
-        //
-        // ----- ArduinoDevice
-        //
-        ArduinoDevice.usbManager = applicationContext.getSystemService(Context.USB_SERVICE) as UsbManager
-        ArduinoDevice.myContext = applicationContext
-        ArduinoDevice.mainActivity = this
-        ArduinoDevice.usbSetFilters()
-        ArduinoDevice.usbSerialImediateChecking(200)
-
-
         setButtonListeners()
-
     }
 
 
     // ------------- textResult--------------
-    private var stringTextResult: String = "R$ 0,00"
     private var valorAcumulado: Int = 0
-    private var mostraEmResultHandler = Handler()
-    private var updateEmResult = Runnable {
-        textResult.setText(stringTextResult)
-    }
-
     fun mostraEmResult(valor: Int) {
         valorAcumulado += valor
-        stringTextResult = "R$ ${valorAcumulado},00 "
-        Timber.i("Total Recebido: ${stringTextResult}")
-        mostraEmResultHandler.removeCallbacks(updateEmResult)
-        mostraEmResultHandler.postDelayed(updateEmResult, 10)
+        Timber.i("Total Recebido: R$ ${valorAcumulado},00")
+        textResult.setText(String.format("R$ %d,00", valorAcumulado) )
     }
-
 
     fun erroFatal(str: String?)
     {
@@ -117,7 +90,6 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
-
 
 
     fun insertSpinnerBillAcceptor() {
