@@ -192,6 +192,11 @@ object ArduinoDevice {
                     ArduinoDevice.requestToSend(EventType.FW_STATUS_RQ, Event.QUESTION)
                     Thread.sleep(500)
                     connectThread!!.discardCommunicationData(false)
+                    Thread.sleep(500)
+
+                    ArduinoDevice.requestToSend(EventType.FW_STATUS_RQ, Event.QUESTION)
+
+
                 } else {
                     Timber.e("Falha na criação da thread ")
                 }

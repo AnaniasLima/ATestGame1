@@ -38,10 +38,8 @@ char strCmd[30];
 char strAction[30];
 
 int estado=0;
-int estadoAnt=-1;
 int flagTokenValor=0;
 int packetNumber=0;
-int packetTargetNoteiro=0;
 int pacotesNaoReconhecidos=0;
 int iComando;
 int iAction;
@@ -198,13 +196,15 @@ void processaPar(char *token, char *valor) {
 void txFsmStateDemo () {
   char *strResp = "FSM_IDLE";
 
+  addIntResposta("fsmStateDemo", fsmStateDemo);
+
   if ( fsmStateDemo == 0 ) {
       statusDemo = 0; 
   } else {
       if ( statusDemo == 999) {
         statusDemo=1;
         strResp = "RUNNING_DEMO";
-        fsmStateDemo = 5 + (rand() % 40);
+        fsmStateDemo = 5 + random(1, 40);
       } else {
         if ( fsmStateDemo <= 4 ) {
               switch(fsmStateDemo ) {
@@ -336,7 +336,7 @@ void processaLinha(void)
 
       startResposta("fw_status_rq");
       addStrResposta("action", action);
-      addIntResposta("error_n", fsmStateDemo);
+      addIntResposta("error_n", 0);
       addStrResposta("button_1", "off");
       addStrResposta("button_2", "off");
       addIntResposta("mifare", 0);
@@ -372,6 +372,7 @@ void processaLinha(void)
 
       startResposta("fw_demo");
       addStrResposta("action", action);
+      addIntResposta("error_n", 0);
       addIntResposta("packetNumber", packetNumber);
       addIntResposta("numPktResp", numPktResp++);
       addStrResposta("hour", strHora);
@@ -470,7 +471,13 @@ void loop()
     }
 
     if ( data == '}') {
+
+      if (packetNumber == 1 ) {
+        zeraControleEstados();
+      }
+
       processaLinha( );
+      
       if (packetNumber == 1 ) {
         zeraTudo();
       }
@@ -550,18 +557,22 @@ void loop()
   }
 }
 
-void zeraTudo(void)
+void zeraControleEstados()
 {
-  estado=0;
-  estadoAnt=-1;
   statusNoteiro=0;
   valorNoteiro=0;
   statusPlay=0;
   statusDemo=0;
   fsmStateDemo = 0;
+}
+
+
+void zeraTudo(void)
+{
+  estado=0;
   pacotesNaoReconhecidos=0;
 
-  packetTargetNoteiro=0;
+  zeraControleEstados();
   zeraNovoPacote();
 }
 

@@ -164,6 +164,34 @@ object GameMachine {
         }
     }
 
+
+    fun machineDemoTimeout(start: Boolean) {
+
+        if ( start ) {
+            val c = Calendar.getInstance()
+            val strHora = String.format(
+                "%02d:%02d:%02d",
+                c.get(Calendar.HOUR_OF_DAY),
+                c.get(Calendar.MINUTE),
+                c.get(Calendar.SECOND)
+            )
+            Timber.i("agendando demoTimeout: ${strHora} + ${MAX_RUN_DEMO_TIMEOUT}ms")
+
+            gameMachineHandler.removeCallbacks(demoTimeoutResetMachine)
+            gameMachineHandler.postDelayed(demoTimeoutResetMachine, MAX_RUN_DEMO_TIMEOUT)
+        } else {
+            Timber.i("Removendo demoTimeout")
+            gameMachineHandler.removeCallbacks(demoTimeoutResetMachine)
+        }
+
+    }
+
+
+    private var demoTimeoutResetMachine = Runnable {
+        erroFatal("Nao finalizou demo em ${MAX_RUN_DEMO_TIMEOUT}ms")
+    }
+
+
     fun changeGameMachineCurrentState( newState : MachineState) {
         if ( receivedState != newState) {
             // Saindo do state
@@ -175,6 +203,7 @@ object GameMachine {
 
                 }
                 MachineState.RUNNING_DEMO -> {
+                    machineDemoTimeout(false)
                     showRunningDemo(false)
                 }
                 MachineState.PLAYING -> {
@@ -192,6 +221,7 @@ object GameMachine {
 
                 }
                 MachineState.RUNNING_DEMO -> {
+                    machineDemoTimeout(true)
                     showRunningDemo(true)
                 }
                 MachineState.PLAYING -> {
@@ -241,7 +271,14 @@ object GameMachine {
 
             EventType.FW_STATUS_RQ -> {
                 when (receivedState) {
-                    MachineState.UNKNOW->{}
+                    MachineState.UNKNOW->{
+                        if (response.fsm_state == "FSM_IDLE") {
+                            changeGameMachineCurrentState(MachineState.IDLE)
+                        } else {
+                            ScreenLog.add(LogType.TO_HISTORY, "Tratar response.fsm_state = ${response.fsm_state} em MachineState.UNKNOW")
+                            changeGameMachineCurrentState(MachineState.IDLE) // TODO: Verificar qual estado deveriamos setar
+                        }
+                    }
 
                     MachineState.IDLE -> {
                         if (response.fsm_state == "FSM_IDLE") {
@@ -259,6 +296,9 @@ object GameMachine {
 
                     MachineState.PLAYING-> {
                         ScreenLog.add(LogType.TO_HISTORY, "Tratar PLAYING 001")
+                        if (response.fsm_state == "FSM_IDLE") {
+                            changeGameMachineCurrentState(MachineState.IDLE)
+                        }
                     }
                 }
             }
@@ -271,9 +311,9 @@ object GameMachine {
                     erroFatal("Resposta ERROR inesperada para comando FW_DEMO ")
                 }
 
-                if (response.action == Event.ON) {
+                else if (response.action == Event.ON) {
                     if (response.ret == EventResponse.OK) {
-                        if ( response.fsm_state == "RUNNING_DEMO" ) {
+                        if (response.fsm_state == "RUNNING_DEMO") {
                             changeGameMachineCurrentState(MachineState.RUNNING_DEMO)
                             countCommandsToDesiredState = 0
                             desiredState = MachineState.IDLE
@@ -287,17 +327,22 @@ object GameMachine {
                     } else {
                         // BUSY - Comando não será processado
                         // TODO: futuramente avaliar se precisamos fazer alguma coisa para não "pular" a Demo
+                        ScreenLog.add(LogType.TO_HISTORY, "FW_DEMO(On) ignorado - BUSY")
                     }
 
-                } else {
+                } else if (response.action == Event.OFF) {
 
                     if (response.ret == EventResponse.OK) {
+                        ArduinoDevice.requestToSend(EventType.FW_STATUS_RQ, Event.QUESTION)
+                        // TODO: aqui poderiamos reajustar o timeout para menor (Temo de voltar pra home da posição mais longe possivel)
                         // Vamos aguardar finalização - FSM_IDLE
                     } else {
                         // BUSY - Comando não será processado
                         // Mandando desligar a demo e respondendo BUSY deve estar terminando o HOMMING
                     }
 
+                } else {
+                    ScreenLog.add(LogType.TO_HISTORY, "Resposta Invalida ${response}")
                 }
             }
 
