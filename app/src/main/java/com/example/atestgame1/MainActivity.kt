@@ -21,6 +21,7 @@ enum class ErrorType(val type: Int, val message: String) {
 
 class MainActivity : AppCompatActivity() {
 
+    var isStatMachineRunning = false
 
 //    fun getURI(videoname:String): Uri {
 //        if (URLUtil.isValidUrl(videoname)) {
@@ -61,9 +62,11 @@ class MainActivity : AppCompatActivity() {
         WaitingMode.start(this, video_view, btnInvisivel)
         BillAcceptor.start(this, applicationContext, btn_bill_acceptor)
         ArduinoDevice.start(this, applicationContext)
+        GameMachine.start(this, applicationContext)
 
 
         insertSpinnerBillAcceptor()
+        insertSpinnerGameMachine()
 
         setButtonListeners()
     }
@@ -92,11 +95,29 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-    fun insertSpinnerBillAcceptor() {
-        spinnerDelayQuestion.adapter = ArrayAdapter<String>(this, android.R.layout.simple_list_item_1 , BillAcceptor.questionDelayList)
-        BillAcceptor.setDelayForQuestion(spinnerDelayQuestion.selectedItem.toString())
+    fun showRunningDemo(flag: Boolean)
+    {
+        if ( flag ) {
+            btn_runningDemo.setVisibility(View.VISIBLE)
+            btn_runningDemo.isClickable=true
+            btn_runningDemo.setOnClickListener {
+                Timber.i("Interrompendo demo")
+                GameMachine.stopRunDemo()
+                btn_runningDemo.setVisibility(View.INVISIBLE)
+                btn_runningDemo.isClickable=false
+            }
+        } else {
+            btn_runningDemo.setVisibility(View.INVISIBLE)
+            btn_runningDemo.isClickable=false
+        }
+    }
 
-        spinnerDelayQuestion.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+
+
+    fun insertSpinnerBillAcceptor() {
+        spinnerBillAcceptor.adapter = ArrayAdapter<String>(this, android.R.layout.simple_list_item_1 , BillAcceptor.questionDelayList)
+        BillAcceptor.setDelayForQuestion(spinnerBillAcceptor.selectedItem.toString())
+        spinnerBillAcceptor.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onNothingSelected(parent: AdapterView<*>?) {
                 Timber.i("Nada foi selecionado")
             }
@@ -106,59 +127,79 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    fun insertSpinnerGameMachine() {
+        spinnerMachine.adapter = ArrayAdapter<String>(this, android.R.layout.simple_list_item_1 , GameMachine.questionDelayList)
+        GameMachine.setDelayForQuestion(spinnerMachine.selectedItem.toString())
+        spinnerMachine.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+                Timber.i("Nada foi selecionado")
+            }
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, pos: Int, id: Long) {
+                GameMachine.setDelayForQuestion(parent!!.getItemAtPosition(pos).toString())
+            }
+        }
+    }
+
+
+
     fun setButtonListeners() {
 
-
+        // --------------------------------------------------
         // Primeira Linha -----------------------------------
+        // --------------------------------------------------
 
-            btnBillAcceptorQuestion.setOnClickListener {
-                BillAcceptor.SendQuestion()
-            }
+        btnBillAcceptorQuestion.setOnClickListener {
+            BillAcceptor.SendQuestion()
+        }
 
-            btnBillAcceptorReset.setOnClickListener {
-                BillAcceptor.SendReset()
-            }
+        btnBillAcceptorReset.setOnClickListener {
+            BillAcceptor.SendReset()
+        }
 
-            btnStatusRequest.setOnClickListener {
-                ArduinoDevice.requestToSend(EventType.FW_STATUS_RQ, Event.QUESTION)
-            }
-
-            btnDemoOn.setOnClickListener {
+        btnDemoOn.setOnClickListener {
+            if ( isStatMachineRunning ) {
+                GameMachine.startRunDemo()
+            } else {
                 ArduinoDevice.requestToSend(EventType.FW_DEMO, Event.ON)
-                Thread {
-                    // Vamos desligar temporariamente o log TX (depois retornamos ao status original)
-                    val old = ArduinoDevice.getLogLevel(FunctionType.FX_TX)
-                    Thread.sleep(1000)
-                    ArduinoDevice.logTX(false)
-                    for ( contaLinha in  1..10) {
-                        ArduinoDevice.requestToSend(EventType.FW_STATUS_RQ, Event.QUESTION)
-                        Thread.sleep(1000)
-                    }
-                    ArduinoDevice.logTX(old)
-                }.start()
             }
+        }
 
-            btnBillAcceptorStateMachine.setOnClickListener{
-                if ( BillAcceptor.isStatMachineRunning() ) {
-                    btnBillAcceptorStateMachine.text = getString(R.string.startStateMachine)
-                    BillAcceptor.StopStateMachine()
-                } else {
-                    btnBillAcceptorStateMachine.text = getString(R.string.stopStateMachine)
-                    BillAcceptor.StartStateMachine()
-                }
-            }
+        btnStatusRequest.setOnClickListener {
+            ArduinoDevice.requestToSend(EventType.FW_STATUS_RQ, Event.QUESTION)
+        }
 
+
+        // --------------------------------------------------
         // Segunda Linha -----------------------------------
-            btnLogTag.setOnClickListener{
-                ScreenLog.tag(LogType.TO_LOG)
+        // --------------------------------------------------
+        btnLogTag.setOnClickListener{
+            ScreenLog.tag(LogType.TO_LOG)
+        }
+
+        btnLogClear.setOnClickListener{
+            ScreenLog.clear(LogType.TO_LOG)
+            ScreenLog.clear(LogType.TO_HISTORY)
+        }
+
+
+        btnStateMachine.setOnClickListener{
+            if ( isStatMachineRunning ) {
+                btnStateMachine.text = getString(R.string.startStateMachine)
+                BillAcceptor.stopStateMachine()
+                GameMachine.stopStateMachine()
+                isStatMachineRunning = false
+
+            } else {
+                btnStateMachine.text = getString(R.string.stopStateMachine)
+                BillAcceptor.startStateMachine()
+                GameMachine.startStateMachine()
+                isStatMachineRunning = true
             }
+        }
 
-            btnLogClear.setOnClickListener{
-                ScreenLog.clear(LogType.TO_LOG)
-            }
-
-
+        // --------------------------------------------------
         // Rodape -----------------------------------
+        // --------------------------------------------------
         btn_bill_acceptor.setOnClickListener {
             if ( BillAcceptor.isEnabled() ) {
                 BillAcceptor.SendTurnOff()

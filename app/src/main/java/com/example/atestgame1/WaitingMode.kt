@@ -27,12 +27,10 @@ object WaitingMode {
 
     var runDemoHandler: Handler = Handler()
     var runDemoRunnable: Runnable = Runnable {
-        ScreenLog.add(LogType.TO_HISTORY, "Enviando EventType.FW_DEMO")
-
-        ArduinoDevice.requestToSend(EventType.FW_DEMO, Event.ON)
-        // Esperamos receber resposta de um comando FW_DEMO em no máximo 20 segundos
-        // TODO: Validar com Marcus se este tempo esta OK
-        runDemoTimeoutHandler.postDelayed(runDemoTimeoutRunnable, 20000)
+        var timeout : Long = 0L
+        ScreenLog.add(LogType.TO_HISTORY, "chamando startRunDemo()")
+        timeout = GameMachine.startRunDemo()
+        runDemoTimeoutHandler.postDelayed(runDemoTimeoutRunnable, timeout)
     }
 
 
@@ -103,7 +101,7 @@ object WaitingMode {
         videoView.start()
     }
 
-    fun releasePlayer() {
+    private fun releasePlayer() {
         if ( videoView.isPlaying ) {
             videoView.stopPlayback()
         }
@@ -137,17 +135,17 @@ object WaitingMode {
     }
 
 
-    fun onDemoEventReturn() {
+    fun onDemoFinishedEventReturn() {
         initRunDemoTimer()
     }
 
-    fun cancelRunDemoRunnable() {
+    private fun cancelRunDemoRunnable() {
         try {
             runDemoHandler.removeCallbacks(runDemoRunnable)
         } catch (e: Exception) {}
     }
 
-    fun cancelRunDemoTimeoutRunnable() {
+    private fun cancelRunDemoTimeoutRunnable() {
         try {
             runDemoTimeoutHandler.removeCallbacks(runDemoTimeoutRunnable)
         } catch (e: Exception) {}

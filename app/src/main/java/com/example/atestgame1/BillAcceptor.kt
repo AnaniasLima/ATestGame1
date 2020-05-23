@@ -10,13 +10,13 @@ import timber.log.Timber
 import java.lang.Exception
 import java.util.*
 
-enum class DeviceState  {
+private enum class DeviceState  {
     UNKNOW,
     OFF,
     ON;
 }
 
-enum class DeviceCommand  {
+private enum class DeviceCommand  {
     OFF,
     ON,
     RESET,
@@ -36,16 +36,16 @@ object BillAcceptor {
     private const val WAIT_TIME_TO_RESPONSE = 300L
     private const val BUSY_LIMIT_COUNTER = 10
 
-    var mainActivity: AppCompatActivity? = null
-    var context: Context? = null
+    private var mainActivity: AppCompatActivity? = null
+    private var appContext: Context? = null
 
     private var billAcceptorHandler = Handler()
 
     private var desiredState : DeviceState = DeviceState.OFF
+    private var receivedState: DeviceState = DeviceState.UNKNOW
+
     private var inBusyStateCounter = 0
     private var inErrorStateCounter = 0         // TODO: Teoricamente nunca deve acontecer. Vamos criar uma forma de tratar caso fique > 0
-
-    private var receivedState: DeviceState = DeviceState.UNKNOW
 
     private var receivedValue = 0  // when receive values store here until
 
@@ -56,9 +56,9 @@ object BillAcceptor {
 
     lateinit var btnView : Button
 
-    fun start(activity: AppCompatActivity, appcontext: Context, btn: Button) {
+    fun start(activity: AppCompatActivity, context: Context, btn: Button) {
         mainActivity = activity
-        context = appcontext
+        appContext = context
         btnView = btn
 
         mainActivity?.runOnUiThread {
@@ -88,7 +88,6 @@ object BillAcceptor {
         try {
             val delay: Long = str3.toLong()
             SELECTED_TIME_TO_QUESTION = delay
-            ScreenLog.add(LogType.TO_LOG, "delay=${delay}")
             deviceChecking(0L) // Para iniciar novo ciclo
         } catch (e: Exception) {
             SELECTED_TIME_TO_QUESTION = DEFAULT_TIME_TO_QUESTION
@@ -111,17 +110,14 @@ object BillAcceptor {
         return receivedState == DeviceState.ON
     }
 
-    fun isStatMachineRunning() : Boolean {
-        return stateMachineRunning
-    }
 
-    fun StartStateMachine()  {
+    fun startStateMachine()  {
         stateMachineRunning = true
         desiredState = DeviceState.ON
         deviceChecking(WAIT_TIME_TO_RESPONSE)
     }
 
-    fun StopStateMachine()  {
+    fun stopStateMachine()  {
         stateMachineRunning = false
     }
 
@@ -321,7 +317,7 @@ object BillAcceptor {
     }
 
 
-    fun sendCommandToDevice(cmd : DeviceCommand) {
+    private fun sendCommandToDevice(cmd : DeviceCommand) {
 
         when (cmd) {
             DeviceCommand.OFF -> {

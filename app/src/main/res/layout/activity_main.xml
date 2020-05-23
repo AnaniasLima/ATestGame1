@@ -94,7 +94,7 @@
         app:layout_constraintTop_toTopOf="@+id/gl_top1"
         app:layout_constraintBottom_toTopOf="@+id/gl_top2"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/spinnerDelayQuestion"
+        app:layout_constraintEnd_toStartOf="@+id/spinnerMachine"
         android:background="@color/colorTopArea2"
         android:orientation="horizontal">
 
@@ -117,7 +117,7 @@
 
 
         <Button
-            android:id="@+id/btnBillAcceptorStateMachine"
+            android:id="@+id/btnStateMachine"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
@@ -128,9 +128,18 @@
     </LinearLayout>
 
 
+    <Spinner
+        android:id="@+id/spinnerMachine"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:textAlignment="center"
+        app:layout_constraintEnd_toStartOf="@+id/spinnerBillAcceptor"
+        app:layout_constraintTop_toTopOf="@+id/gl_top1"
+        app:layout_constraintBottom_toTopOf="@+id/gl_top2"
+        />
 
     <Spinner
-        android:id="@+id/spinnerDelayQuestion"
+        android:id="@+id/spinnerBillAcceptor"
         android:layout_width="wrap_content"
         android:layout_height="0dp"
         android:textAlignment="center"
@@ -256,6 +265,20 @@
         app:layout_constraintTop_toTopOf="@+id/gl_bottom" />
 
 
+    <Button
+        android:id="@+id/btn_runningDemo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@color/colorButtonRunningDemo"
+        android:textColor="@color/colorTextRunningDemo"
+        android:clickable="false"
+        android:visibility="invisible"
+        android:text="   Aguarde \n Demostração"
+        android:textAlignment="center"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/btnStopVideo"
+        app:layout_constraintTop_toTopOf="@+id/gl_bottom" />
+
     <TextView
         android:id="@+id/textResult"
         android:layout_width="0dp"
@@ -289,6 +312,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
 
 
 

@@ -124,11 +124,12 @@ object ArduinoDevice {
         }
 
         when ( eventResponse.eventType ) {
-            EventType.FW_PLAY -> {
-                Timber.e("=============== FW_PLAY =======================: ${eventResponse.toString()}")
+            EventType.FW_PLAY,
+            EventType.FW_DEMO,
+            EventType.FW_STATUS_RQ -> {
+                GameMachine.processReceivedResponse(eventResponse)
             }
             EventType.FW_BILL_ACCEPTOR -> {
-//                Timber.e("FW_BILL_ACCEPTOR =====> ${eventResponse.toString()}")
                 BillAcceptor.processReceivedResponse(eventResponse)
             }
             EventType.FW_LED -> {
@@ -184,6 +185,13 @@ object ArduinoDevice {
 
                     connectThread!!.start()
 
+                    // Vamos mandar pacotes para "esquentar" a conexao
+                    connectThread!!.discardCommunicationData(true)
+                    ArduinoDevice.requestToSend(EventType.FW_STATUS_RQ, Event.QUESTION)
+                    ArduinoDevice.requestToSend(EventType.FW_STATUS_RQ, Event.QUESTION)
+                    ArduinoDevice.requestToSend(EventType.FW_STATUS_RQ, Event.QUESTION)
+                    Thread.sleep(500)
+                    connectThread!!.discardCommunicationData(false)
                 } else {
                     Timber.e("Falha na criação da thread ")
                 }

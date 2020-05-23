@@ -32,6 +32,14 @@ class ConnectThread(val operation:Int, val usbManager : UsbManager, val mainActi
         var isConnected: Boolean  = false
     }
 
+    // Para descartar primeiros pacotes da conexao
+    var communicationModeDummy = false
+    fun discardCommunicationData(dummyMode: Boolean) {
+        communicationModeDummy = dummyMode
+    }
+
+
+
     private fun mostraNaTela(str:String) {
         ScreenLog.add(LogType.TO_LOG, str)
 //        (mainActivity as MainActivity).mostraNaTela(str)
@@ -97,6 +105,10 @@ class ConnectThread(val operation:Int, val usbManager : UsbManager, val mainActi
 
 
     fun onCommandReceived(commandReceived: String) {
+
+        if ( communicationModeDummy ) {
+            return
+        }
 
         pendingResponse = 0
 
@@ -191,10 +203,12 @@ class ConnectThread(val operation:Int, val usbManager : UsbManager, val mainActi
             val pktStr: String = Event.getCommandData(curEvent)
             usbSerialDevice?.write(pktStr.toByteArray())
 
-            if ( ArduinoDevice.getLogLevel(FunctionType.FX_TX)  ) {
-                ScreenLog.add(LogType.TO_LOG, "TX: ${pktStr}")
-            } else {
-                Timber.d("TX: $pktStr")
+            if ( ! communicationModeDummy ) {
+                if ( ArduinoDevice.getLogLevel(FunctionType.FX_TX)  ) {
+                    ScreenLog.add(LogType.TO_LOG, "TX: ${pktStr}")
+                } else {
+                    Timber.d("TX: $pktStr")
+                }
             }
         } catch (e: Exception) {
             Timber.d("Exception in send: ${e.message} ")
